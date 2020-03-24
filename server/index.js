@@ -13,10 +13,10 @@ let db = new sqlite3.Database(':memory:', (err) => {
 //create table
 db.run('CREATE TABLE IF NOT EXISTS movie(id TEXT,link TEXT,metascore INTEGER,' +
     'poster TEXT,rating INTEGER ,synopsis TEXT,title TEXT,votes REAL,year INTEGER );', function (err) {
-  if (err) {
-    return console.log(err.message)
-  }
-  console.log('Table created')
+    if (err) {
+        return console.log(err.message)
+    }
+    console.log('Table created')
 });
 
 const constants = require('constants');
@@ -57,12 +57,12 @@ app.get('/movies/populate/:id', async function (req, res) {
     }
     //sending response
     res.send("Movies found :" + movies.length + " in which " + awesome.length + " are master pieces");
-})
+});
 
-app.get('/movies',function (req,res) {
+app.get('/movies', function (req, res) {
     //retrieve master pieces movies
-    db.all('SELECT * FROM movie where metascore > 69',[],(err,rows) => {
-        if (err){
+    db.all('SELECT * FROM movie where metascore > 69', [], (err, rows) => {
+        if (err) {
             throw err;
         }
         //select random one
@@ -71,18 +71,50 @@ app.get('/movies',function (req,res) {
         res.send(row);
     })
 
-})
+});
+app.get('/movies/search', function (req, res) {
+    //checking if optional parameters are given
+    let limit = req.query.limit;
+    let metascore = req.query.metascore;
+    //cases
+    if (limit == undefined && metascore == undefined) {
+        db.all('SELECT * FROM movie ORDER BY metascore DESC ', [], (err, rows) => {
+            if (err) {
+                throw err;
+            }
+            res.send(rows);})
+    }
+    if (limit != undefined && metascore == undefined) {
+        db.all('SELECT * FROM movie ORDER BY metascore DESC LIMIT (?) ', [limit], (err, rows) => {
+            if (err) {
+                throw err;
+            }
+            res.send(rows);})
+    }
+    if (limit == undefined && metascore != undefined) {
+        db.all('SELECT * FROM movie WHERE metascore>=(?) ORDER BY metascore DESC ', [metascore], (err, rows) => {
+            if (err) {
+                throw err;
+            }
+            res.send(rows); })
+    }
+    if (limit != undefined && metascore != undefined) {
+        db.all('SELECT * FROM movie WHERE metascore>=(?) ORDER BY metascore DESC LIMIT (?)', [metascore, limit], (err, rows) => {
+            if (err) {
+                throw err;
+            }
+            res.send(rows);}) }
+});
 
-app.get('/movies/:id',function (req,res) {
+app.get('/movies/:id', function (req, res) {
     //retrieve
-    db.get('SELECT * FROM movie where id = (?)',[req.params.id],(err,row)=>{
-        if (err)
-        {
+    db.get('SELECT * FROM movie where id = (?)', [req.params.id], (err, row) => {
+        if (err) {
             throw err;
         }
         res.send(row);
     })
-})
+});
 
 
 app.listen(PORT);
