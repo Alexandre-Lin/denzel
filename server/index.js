@@ -47,8 +47,8 @@ app.get('/movies/populate/:id', async function (req, res) {
     JSON.stringify(awesome, null, 2);
     //inserting to the database
     for (let i = 0; i < movies.length; i++) {
-        db.run('INSERT INTO movie(id,link,metascore,poster,rating,synopsis,title,votes,year) VALUES (?,?,?,?,?,?,?,?,?)', [movies[0].id,
-            movies[0].link, movies[0].metascore, movies[0].poster, movies[0].rating, movies[0].synopsis, movies[0].title, movies[0].votes, movies[0].year], function (err) {
+        db.run('INSERT INTO movie(id,link,metascore,poster,rating,synopsis,title,votes,year) VALUES (?,?,?,?,?,?,?,?,?)', [movies[i].id,
+            movies[i].link, movies[i].metascore, movies[i].poster, movies[i].rating, movies[i].synopsis, movies[i].title, movies[i].votes, movies[i].year], function (err) {
             if (err) {
                 return console.log(err.message);
             }
@@ -57,6 +57,20 @@ app.get('/movies/populate/:id', async function (req, res) {
     }
     //sending response
     res.send("Movies found :" + movies.length + " in which " + awesome.length + " are master pieces");
+})
+
+app.get('/movies',function (req,res) {
+    //retrieve master pieces movies
+    db.all('SELECT * FROM movie where metascore > 69',[],(err,rows) => {
+        if (err){
+            throw err;
+        }
+        //select random one
+        let row = rows[Math.floor(Math.random() * Math.floor(rows.length))];
+        //send response
+        res.send(row);
+    })
+
 })
 
 app.listen(PORT);
