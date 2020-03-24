@@ -73,5 +73,17 @@ app.get('/movies',function (req,res) {
 
 })
 
+app.get('/movies/:id',function (req,res) {
+    //retrieve
+    db.get('SELECT * FROM movie where id = (?)',[req.params.id],(err,row)=>{
+        if (err)
+        {
+            throw err;
+        }
+        res.send(row);
+    })
+})
+
+
 app.listen(PORT);
 console.log(`📡 Running on port ${PORT}`);
