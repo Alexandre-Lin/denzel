@@ -19,6 +19,14 @@ db.run('CREATE TABLE IF NOT EXISTS movie(id TEXT,link TEXT,metascore INTEGER,' +
     console.log('Table created')
 });
 
+//create second table
+db.run('CREATE TABLE IF NOT EXISTS moviereview(id TEXT,date DATE,review TEXT );', function (err) {
+    if (err) {
+        return console.log(err.message)
+    }
+    console.log('Table created')
+});
+
 const constants = require('constants');
 const app = express();
 
@@ -72,6 +80,20 @@ app.get('/movies', function (req, res) {
     })
 
 });
+
+app.post('/movies/:id',function (req,res) {
+    let query=req.body;
+    let date=query['date'];
+    let review=query['review'];
+    db.run('INSERT INTO moviereview(id,date,review) VALUES (?,?,?)', [req.params.id,date,review], function (err) {
+        if (err) {
+            console.log(err.message);
+        }
+        console.log("Review Inserted");
+        res.send("Review Inserted");
+    })
+
+})
 app.get('/movies/search', function (req, res) {
     //checking if optional parameters are given
     let limit = req.query.limit;
